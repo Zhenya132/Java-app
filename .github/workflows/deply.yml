@@ -1,16 +1,20 @@
-name: Test React App
+name: Deploy React App
 on: push
 jobs:
-  test:
+  build_frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Get the reposutory code
         uses: actions/checkout@v4
       - name: Install dependecies
-        run: npm ci
+        run: npm install
         working-directory: frontend/front-end
-      - name: Test applications
-        run: npm run test
+      - name: build frontend
+        run: npm run build
         working-directory: frontend/front-end
+      - name: deploy
+        run: echo Deploying ...
+
+  
       
       
