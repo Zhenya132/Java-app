@@ -6,11 +6,15 @@ jobs:
     steps:
       - name: Get the reposutory code
         uses: actions/checkout@v4
+      - name: setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
       - name: Install dependecies
-        run: npm install
+        run: npm ci
         working-directory: frontend/front-end
       - name: build frontend
-        run: npm run build
+        run: CI=false npm run build
         working-directory: frontend/front-end
       - name: deploy
         run: echo Deploying ...
