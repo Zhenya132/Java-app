@@ -1,0 +1,17 @@
+server{
+listen 80;
+server_name slvstudy;
+return 301 https://slvstudy;
+}
+server {
+listen 443 ssl;
+server_name slvstudy;
+ssl_certificate /etc/nginx/ssl/slvstudy.crt;
+ssl_certificate_key /etc/nginx/ssl/slvstudy.key;
+location / {
+root /var/www/Java-app/front-end/build;
+index index.html;
+}
+location /api {
+proxy_pass http://back-end:8081;
+}

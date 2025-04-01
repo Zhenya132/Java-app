@@ -1,0 +1,76 @@
+version: "3.5"
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    volumes:
+      - /postgre_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=java_user
+      - POSTGRES_PASSWORD=303220
+      - POSTGRES_DB=java_db
+    networks:
+      - my_local_net
+    volumes:
+      - /proj_db:/var/lib/postgresql/data
+    restart: on-failure
+    networks:
+      - my_local_net
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    networks:
+      - my_local_net
+    restart: on-failure
+    depends_on:
+      - postgres
+
+  backend:
+    image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:${CI_COMMIT_REF_SLUG}_backend.latest
+    #build: ./backend
+    container_name: backend
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=java_user
+      - POSTGRES_PASSWORD=303220
+      - POSTGRES_DB=java_db
+
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+      - FLUENTD_ENABLED=false
+      - FLUENTD_HOST=localhost
+      - FLUENTD_PORT=24224
+
+      -  SERVER_PORT=8081
+      -  DEBUG=true
+    depends_on:
+      - redis
+      - postgres
+    restart: on-failure
+    networks:
+      - my_local_net
+
+  frontend:
+    image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:${CI_COMMIT_REF_SLUG}_frontend.latest
+    #build: ./frontend
+    container_name: frontend
+    depends_on:
+      - redis
+      - postgres
+      - backend
+    networks:
+      - my_local_net
+    ports:
+      - 445:443
+      - 85:80
+    restart: on-failure
+
+
+
+networks:
+  my_local_net:
+    name: my_local_net
+    driver: bridge
